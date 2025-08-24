@@ -752,18 +752,25 @@ def retrieve_bio_context(query: str, bio_text: str, k: int = 3, min_chars: int =
 
 
 def ask_bot(input_text, bio_content):
+    # Initialize typing_placeholder first, outside try block
+    typing_placeholder = st.empty()
+    
     try:
         from google import genai
 
-        # Initialize Gemini client
-        client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+        # Check if API key exists
+        if "GEMINI_API_KEY" not in st.secrets:
+            typing_placeholder.empty()
+            return "API configuration missing. Please contact the administrator."
 
         # Show typing indicator
-        typing_placeholder = st.empty()
         typing_placeholder.markdown("🤖 AnkBot is typing...", unsafe_allow_html=True)
 
         # Combine context and user question
         contents = f"Context:\n{bio_content}\n\nUser question:\n{input_text}"
+
+        # Initialize Gemini client
+        client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
         # Call Gemini model
         response = client.models.generate_content(
@@ -786,7 +793,11 @@ def ask_bot(input_text, bio_content):
         typing_placeholder.empty()
         return (getattr(response, "text", None) or "").strip()
 
+    except ImportError:
+        typing_placeholder.empty()
+        return "Google GenAI library not available. Please check the installation."
     except Exception as e:
+        # Now typing_placeholder is guaranteed to exist
         typing_placeholder.empty()
         st.error(f"An error occurred: {str(e)}")
         return "I'm having trouble connecting right now. Please try again later."
