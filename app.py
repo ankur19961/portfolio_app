@@ -751,56 +751,78 @@ def retrieve_bio_context(query: str, bio_text: str, k: int = 3, min_chars: int =
 
 
 
+# def ask_bot(input_text, bio_content):
+#     # Initialize typing_placeholder first, outside try block
+#     typing_placeholder = st.empty()
+    
+#     try:
+#         from google import genai
+
+#         # Check if API key exists
+#         if "GEMINI_API_KEY" not in st.secrets:
+#             typing_placeholder.empty()
+#             return "API configuration missing. Please contact the administrator."
+
+#         # Show typing indicator
+#         typing_placeholder.markdown("🤖 AnkBot is typing...", unsafe_allow_html=True)
+
+#         # Combine context and user question
+#         contents = f"Context:\n{bio_content}\n\nUser question:\n{input_text}"
+
+#         # Initialize Gemini client
+#         client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+
+#         # Call Gemini model
+#         response = client.models.generate_content(
+#             model="gemini-2.5-flash",  # Fast, good for chat
+#             contents=[{"role": "user", "parts": [contents]}],
+#             config={
+#                 "system_instruction": (
+#                     "You are AnkBot, an AI assistant answering questions about Ankur. "
+#                     "Use only the provided context when possible. If unsure, do NOT make up answers. "
+#                     "Politely ask users to contact Ankur at ankurshukla19961@gmail.com.\n\n"
+#                     "Format responses with:\n"
+#                     "- Plain text (no markdown)\n"
+#                     "- Hyphens (-) for lists\n"
+#                     "- Simple line breaks"
+#                 ),
+#                 "temperature": 0.4
+#             }
+#         )
+
+#         typing_placeholder.empty()
+#         return (getattr(response, "text", None) or "").strip()
+
+#     except ImportError:
+#         typing_placeholder.empty()
+#         return "Google GenAI library not available. Please check the installation."
+#     except Exception as e:
+#         # Now typing_placeholder is guaranteed to exist
+#         typing_placeholder.empty()
+#         st.error(f"An error occurred: {str(e)}")
+#         return "I'm having trouble connecting right now. Please try again later."
+
+
 def ask_bot(input_text, bio_content):
     # Initialize typing_placeholder first, outside try block
     typing_placeholder = st.empty()
     
     try:
-        from google import genai
-
-        # Check if API key exists
-        if "GEMINI_API_KEY" not in st.secrets:
-            typing_placeholder.empty()
-            return "API configuration missing. Please contact the administrator."
-
         # Show typing indicator
         typing_placeholder.markdown("🤖 AnkBot is typing...", unsafe_allow_html=True)
-
-        # Combine context and user question
-        contents = f"Context:\n{bio_content}\n\nUser question:\n{input_text}"
-
-        # Initialize Gemini client
-        client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-
-        # Call Gemini model
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",  # Fast, good for chat
-            contents=[{"role": "user", "parts": [contents]}],
-            config={
-                "system_instruction": (
-                    "You are AnkBot, an AI assistant answering questions about Ankur. "
-                    "Use only the provided context when possible. If unsure, do NOT make up answers. "
-                    "Politely ask users to contact Ankur at ankurshukla19961@gmail.com.\n\n"
-                    "Format responses with:\n"
-                    "- Plain text (no markdown)\n"
-                    "- Hyphens (-) for lists\n"
-                    "- Simple line breaks"
-                ),
-                "temperature": 0.4
-            }
-        )
-
+        
+        # Simulate some processing time
+        import time
+        time.sleep(1)
+        
         typing_placeholder.empty()
-        return (getattr(response, "text", None) or "").strip()
-
-    except ImportError:
-        typing_placeholder.empty()
-        return "Google GenAI library not available. Please check the installation."
+        
+        # Return a generic response for testing
+        return f"Thanks for asking '{input_text}'. I'm currently in test mode. Please set up the Gemini API key for full functionality. You can contact Ankur at ankurshukla19961@gmail.com for more details."
+        
     except Exception as e:
-        # Now typing_placeholder is guaranteed to exist
         typing_placeholder.empty()
-        st.error(f"An error occurred: {str(e)}")
-        return "I'm having trouble connecting right now. Please try again later."
+        return f"Error in test mode: {str(e)}"
 
 
 # -------------------------------
