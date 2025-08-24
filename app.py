@@ -756,76 +756,51 @@ def ask_bot(input_text, bio_content):
     typing_placeholder = st.empty()
     
     try:
-        # Show typing indicator
-        typing_placeholder.markdown("🤖 AnkBot is typing...", unsafe_allow_html=True)
+        from google import genai
 
-        # Debug: Check if API key exists
+        # Check if API key exists
         if "GEMINI_API_KEY" not in st.secrets:
             typing_placeholder.empty()
-            return "❌ GEMINI_API_KEY not found in secrets. Please add it in Streamlit settings."
-        
-        # Debug: Show partial key (for verification)
-        api_key = st.secrets["GEMINI_API_KEY"]
-        if len(api_key) < 10:
-            typing_placeholder.empty()
-            return f"❌ API key seems too short: {len(api_key)} characters"
-        
-        key_preview = api_key[:10] + "..." + api_key[-5:] if len(api_key) > 15 else "Key too short"
-        
-        # Try importing google genai
-        try:
-            from google import genai
-        except ImportError as ie:
-            typing_placeholder.empty()
-            return f"❌ Import error: {str(ie)}. Check if 'google-genai' is in requirements.txt"
+            return "API configuration missing. Please contact the administrator."
+
+        # Show typing indicator
+        typing_placeholder.markdown("🤖 AnkBot is typing...", unsafe_allow_html=True)
 
         # Combine context and user question
         contents = f"Context:\n{bio_content}\n\nUser question:\n{input_text}"
 
-        # Try to initialize Gemini client
-        try:
-            client = genai.Client(api_key=api_key)
-        except Exception as ce:
-            typing_placeholder.empty()
-            return f"❌ Client creation failed: {str(ce)}"
+        # Initialize Gemini client
+        client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
-        # Try to call Gemini model
-        try:
-            response = client.models.generate_content(
-                model="gemini-2.0-flash-exp",
-                contents=[{"role": "user", "parts": [contents]}],
-                config={
-                    "system_instruction": (
-                        "You are AnkBot, an AI assistant answering questions about Ankur. "
-                        "Use only the provided context when possible. If unsure, do NOT make up answers. "
-                        "Politely ask users to contact Ankur at ankurshukla19961@gmail.com.\n\n"
-                        "Format responses with:\n"
-                        "- Plain text (no markdown)\n"
-                        "- Hyphens (-) for lists\n"
-                        "- Simple line breaks"
-                    ),
-                    "temperature": 0.4
-                }
-            )
-        except Exception as me:
-            typing_placeholder.empty()
-            return f"❌ Model call failed: {str(me)}"
+        # Call Gemini model
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",  # Fast, good for chat
+            contents=[{"role": "user", "parts": [contents]}],
+            config={
+                "system_instruction": (
+                    "You are AnkBot, an AI assistant answering questions about Ankur. "
+                    "Use only the provided context when possible. If unsure, do NOT make up answers. "
+                    "Politely ask users to contact Ankur at ankurshukla19961@gmail.com.\n\n"
+                    "Format responses with:\n"
+                    "- Plain text (no markdown)\n"
+                    "- Hyphens (-) for lists\n"
+                    "- Simple line breaks"
+                ),
+                "temperature": 0.4
+            }
+        )
 
         typing_placeholder.empty()
-        
-        # Try to get response text
-        try:
-            response_text = getattr(response, "text", None)
-            if not response_text:
-                return f"❌ No text in response. Response type: {type(response)}"
-            return response_text.strip()
-        except Exception as re:
-            typing_placeholder.empty()
-            return f"❌ Response parsing failed: {str(re)}"
+        return (getattr(response, "text", None) or "").strip()
 
+    except ImportError:
+        typing_placeholder.empty()
+        return "Google GenAI library not available. Please check the installation."
     except Exception as e:
+        # Now typing_placeholder is guaranteed to exist
         typing_placeholder.empty()
-        return f"❌ Unexpected error: {str(e)}"
+        st.error(f"An error occurred: {str(e)}")
+        return "I'm having trouble connecting right now. Please try again later."
 
 
 # -------------------------------
