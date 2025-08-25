@@ -752,55 +752,73 @@ def retrieve_bio_context(query: str, bio_text: str, k: int = 3, min_chars: int =
 
 
 def ask_bot(input_text, bio_content):
-    # Initialize typing_placeholder first, outside try block
     typing_placeholder = st.empty()
     
     try:
         from google import genai
-
-        # Check if API key exists
+        
         if "GEMINI_API_KEY" not in st.secrets:
             typing_placeholder.empty()
             return "API configuration missing. Please contact the administrator."
 
-        # Show typing indicator
         typing_placeholder.markdown("🤖 AnkBot is typing...", unsafe_allow_html=True)
-
-        # Combine context and user question
-        contents = f"Context:\n{bio_content}\n\nUser question:\n{input_text}"
-
+        
         # Initialize Gemini client
         client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+        
+        # Create the system instruction and user content
+        system_instruction = (
+            "You are AnkBot, an AI assistant answering questions about Ankur. "
+            "Use only the provided context when possible. If unsure, do NOT make up answers. "
+            "Politely ask users to contact Ankur at ankurshukla19961@gmail.com.\n\n"
+            "Format responses with:\n"
+            "- Plain text (no markdown)\n"
+            "- Hyphens (-) for lists\n"
+            "- Simple line breaks"
+        )
+        
+        # Combine context and question into a single prompt
+        full_prompt = f"""Context about Ankur:
+{bio_content}
 
-        # Call Gemini model
+Question: {input_text}
+
+Please answer based on the context provided above."""
+
+        # Use the correct Google GenAI format - just pass the text directly
         response = client.models.generate_content(
-            model="gemini-2.5-flash",  # Fast, good for chat
-            contents=[{"role": "user", "parts": [contents]}],
+            model="gemini-1.5-flash",  # Using a stable model
+            contents=full_prompt,  # Simple string format
             config={
-                "system_instruction": (
-                    "You are AnkBot, an AI assistant answering questions about Ankur. "
-                    "Use only the provided context when possible. If unsure, do NOT make up answers. "
-                    "Politely ask users to contact Ankur at ankurshukla19961@gmail.com.\n\n"
-                    "Format responses with:\n"
-                    "- Plain text (no markdown)\n"
-                    "- Hyphens (-) for lists\n"
-                    "- Simple line breaks"
-                ),
-                "temperature": 0.4
+                "system_instruction": system_instruction,
+                "temperature": 0.4,
+                "max_output_tokens": 500
             }
         )
 
         typing_placeholder.empty()
-        return (getattr(response, "text", None) or "").strip()
+        
+        # Extract the response text
+        if hasattr(response, 'text') and response.text:
+            return response.text.strip()
+        elif hasattr(response, 'candidates') and response.candidates:
+            return response.candidates[0].content.parts[0].text.strip()
+        else:
+            return "I received an empty response. Please try again."
 
-    except ImportError:
-        typing_placeholder.empty()
-        return "Google GenAI library not available. Please check the installation."
     except Exception as e:
-        # Now typing_placeholder is guaranteed to exist
         typing_placeholder.empty()
-        st.error(f"An error occurred: {str(e)}")
-        return "I'm having trouble connecting right now. Please try again later."
+        error_msg = str(e)
+        
+        # Handle specific errors with user-friendly messages
+        if "api key" in error_msg.lower() or "authentication" in error_msg.lower():
+            return "API authentication failed. Please check the API key configuration."
+        elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
+            return "API quota exceeded. Please try again later."
+        elif "model" in error_msg.lower():
+            return "Model error. The AI service might be temporarily unavailable."
+        else:
+            return f"I'm having trouble connecting right now. Please try again later."
 
 
 # -------------------------------
