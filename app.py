@@ -766,33 +766,46 @@ def ask_bot(input_text, bio_content):
         # Initialize Gemini client
         client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
         
-        # Create the system instruction and user content
+        # Enhanced system instruction for better responses
         system_instruction = (
-            "You are AnkBot, an AI assistant answering questions about Ankur. "
-            "Use only the provided context when possible. If unsure, do NOT make up answers. "
-            "Politely ask users to contact Ankur at ankurshukla19961@gmail.com.\n\n"
-            "Format responses with:\n"
-            "- Plain text (no markdown)\n"
-            "- Hyphens (-) for lists\n"
-            "- Simple line breaks"
+            "You are AnkBot, an AI assistant representing Ankur Shukla, a Senior Data Scientist with 6+ years of experience. "
+            "You are knowledgeable, professional, and enthusiastic about Ankur's work.\n\n"
+            
+            "CONTEXT USAGE:\n"
+            "- Use the provided context as your primary source of information\n"
+            "- If information isn't in the context, politely direct users to contact Ankur directly\n"
+            "- Never invent or assume information not provided\n\n"
+            
+            "RESPONSE STYLE:\n"
+            "- Professional yet conversational tone\n"
+            "- Use plain text (no markdown, no asterisks, no bold formatting)\n"
+            "- Use hyphens (-) for bullet points\n"
+            "- Keep responses focused and relevant\n"
+            "- Show enthusiasm for Ankur's technical achievements\n"
+            "- Include specific metrics and results when available in context\n\n"
+            
+            "CONTACT INFO:\n"
+            "For detailed discussions or opportunities, direct users to: ankurshukla19961@gmail.com"
         )
         
-        # Combine context and question into a single prompt
-        full_prompt = f"""Context about Ankur:
+        # Create comprehensive prompt
+        full_prompt = f"""CONTEXT ABOUT ANKUR SHUKLA:
 {bio_content}
 
-Question: {input_text}
+USER QUESTION: {input_text}
 
-Please answer based on the context provided above."""
+Please provide a helpful, accurate response based on the context above. If the context doesn't contain specific information needed to fully answer the question, acknowledge this and suggest contacting Ankur directly."""
 
-        # Use the correct Google GenAI format - just pass the text directly
+        # Use gemini-2.5-pro for best quality
         response = client.models.generate_content(
-            model="gemini-1.5-flash",  # Using a stable model
-            contents=full_prompt,  # Simple string format
+            model="gemini-2.5-pro",
+            contents=full_prompt,
             config={
                 "system_instruction": system_instruction,
-                "temperature": 0.4,
-                "max_output_tokens": 500
+                "temperature": 0.2,  # More consistent, professional responses
+                "max_output_tokens": 1000,  # Allow for detailed responses
+                "top_p": 0.8,  # Focused but not overly restrictive
+                "top_k": 40
             }
         )
 
@@ -810,15 +823,15 @@ Please answer based on the context provided above."""
         typing_placeholder.empty()
         error_msg = str(e)
         
-        # Handle specific errors with user-friendly messages
-        if "api key" in error_msg.lower() or "authentication" in error_msg.lower():
-            return "API authentication failed. Please check the API key configuration."
+        # Detailed error handling
+        if "model not found" in error_msg.lower():
+            return "The AI model is temporarily unavailable. Please try again in a moment."
         elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
-            return "API quota exceeded. Please try again later."
-        elif "model" in error_msg.lower():
-            return "Model error. The AI service might be temporarily unavailable."
+            return "I'm getting a lot of questions right now! Please try again in a minute."
+        elif "api key" in error_msg.lower():
+            return "There's an authentication issue. Please contact the administrator."
         else:
-            return f"I'm having trouble connecting right now. Please try again later."
+            return "I'm having a brief connection issue. Please try your question again."
 
 
 # -------------------------------

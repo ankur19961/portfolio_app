@@ -2,28 +2,59 @@
 # Curated Q&A used by AnkBot before calling the LLM.
 # Keep answers concise, factual, and aligned with the portfolio app content.
 
+# stored_questions.py
+# Curated Q&A used by AnkBot before calling the LLM.
+
 var = {
     # === CONTACT / PROFILES ===
     "contact": (
         "You can reach Ankur at:\n"
         "- Email (preferred): ankurshukla19961@gmail.com\n"
-        
         "- LinkedIn: https://www.linkedin.com/in/ankurshukla1996/\n"
         "- GitHub: https://github.com/ankur19961"
     ),
     "how can i contact you": (
         "You can reach Ankur at:\n"
         "- Email (preferred): ankurshukla19961@gmail.com\n"
-        
         "- LinkedIn: https://www.linkedin.com/in/ankurshukla1996/\n"
         "- GitHub: https://github.com/ankur19961"
     ),
+    "contact information": (
+        "You can reach Ankur at:\n"
+        "- Email (preferred): ankurshukla19961@gmail.com\n"
+        "- LinkedIn: https://www.linkedin.com/in/ankurshukla1996/\n"
+        "- GitHub: https://github.com/ankur19961"
+    ),
+    
+    # === EMAIL VARIATIONS ===
+    "email": "Email: ankurshukla19961@gmail.com",
+    "email address": "Email: ankurshukla19961@gmail.com",
+    "email id": "Email: ankurshukla19961@gmail.com",
+    "his email": "Email: ankurshukla19961@gmail.com",
+    "his email id": "Email: ankurshukla19961@gmail.com",
+    "his email address": "Email: ankurshukla19961@gmail.com",
+    "what is his email": "Email: ankurshukla19961@gmail.com",
+    "what is his email id": "Email: ankurshukla19961@gmail.com",
+    "what is his email address": "Email: ankurshukla19961@gmail.com",
+    "can you provide his email": "Email: ankurshukla19961@gmail.com",
+    "can you provide his email id": "Email: ankurshukla19961@gmail.com",
+    "can you provide his email address": "Email: ankurshukla19961@gmail.com",
+    "provide his email": "Email: ankurshukla19961@gmail.com",
+    "provide his email id": "Email: ankurshukla19961@gmail.com",
+    "give me his email": "Email: ankurshukla19961@gmail.com",
+    "give me his email id": "Email: ankurshukla19961@gmail.com",
+    "ankur email": "Email: ankurshukla19961@gmail.com",
+    "ankur email id": "Email: ankurshukla19961@gmail.com",
+    "ankur email address": "Email: ankurshukla19961@gmail.com",
+    
+    # Common typos
+    "emai": "Email: ankurshukla19961@gmail.com",
+    "emial": "Email: ankurshukla19961@gmail.com",
+    "mail": "Email: ankurshukla19961@gmail.com",
+    "mail id": "Email: ankurshukla19961@gmail.com",
+    
     "linkedin": "LinkedIn: https://www.linkedin.com/in/ankurshukla1996/",
     "github": "GitHub: https://github.com/ankur19961",
-    "email": (
-        "- Email (preferred): ankurshukla19961@gmail.com\n"
-       
-    ),
 
     # === SUMMARY / HEADLINE ===
     "summary": (
