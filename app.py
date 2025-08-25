@@ -1043,12 +1043,12 @@ def render_about_me():
             st.session_state.chat_history.append({"role": "bot", "content": reply})
             st.rerun()
 
-        # Tiny analytics footer
-        with st.expander("Chat diagnostics (local)"):
-            mt = st.session_state.metrics
-            st.write(
-                f"Blocked: {mt['blocked']} • Nudge: {mt['faq_prompted']} • Curated: {mt['faq_answered']} • LLM: {mt['llm']} • Long: {mt['too_long']}"
-            )
+        # # Tiny analytics footer
+        # with st.expander("Chat diagnostics (local)"):
+        #     mt = st.session_state.metrics
+        #     st.write(
+        #         f"Blocked: {mt['blocked']} • Nudge: {mt['faq_prompted']} • Curated: {mt['faq_answered']} • LLM: {mt['llm']} • Long: {mt['too_long']}"
+        #     )
 
 # -------------------------------
 # 8) TECHNICAL EXPERIENCE TAB (unchanged logic)
@@ -1134,98 +1134,98 @@ def render_research_experience():
 # 9) PROJECTS TAB (unchanged logic, small safety)
 # -------------------------------
 
-def projects():
-    col1, _, col3 = st.columns([7, 1, 20])
-    with col1:
-        side_page()
+# def projects():
+#     col1, _, col3 = st.columns([7, 1, 20])
+#     with col1:
+#         side_page()
 
-    with col3:
-        st.markdown("<h1 style='margin-bottom: 20px;'>Projects</h1>", unsafe_allow_html=True)
+#     with col3:
+#         st.markdown("<h1 style='margin-bottom: 20px;'>Projects</h1>", unsafe_allow_html=True)
 
-        project_data = [
-            {
-                "title": "Redfin Housing Data Pipeline And Visualization",
-                "description": "Data Engineering",
-                "category": "Data Engineering and Analysis",
-                "image": "assets/images/redfin.jpg",
-                "github_link": "https://github.com/yourusername/redfin-project",
-            },
-            {
-                "title": "Kafka Data Pipeline With Streamlined Processing",
-                "description": "Real Time Analytics",
-                "category": "Data Engineering and Analysis",
-                "image": "assets/images/kafka.png",
-                "github_link": "https://github.com/vijayrampatel/Data-pipeline-Kafka",
-            },
-            {
-                "title": "Layoffs Data Visualization",
-                "description": "ETL and Data Visualization",
-                "category": "Data Engineering and Analysis",
-                "image": "assets/images/Layoffs.png",
-                "github_link": "Layoffs.png",
-            },
-            {
-                "title": "Fraud Transaction Detection",
-                "description": "Machine Learning",
-                "category": "Machine and Deep Learning",
-                "image": "assets/images/fraud_transaction.png",
-                "github_link": "https://github.com/yourusername/fraud-detection",
-            },
-            {
-                "title": "Movie Recommendation System",
-                "description": "NLP",
-                "category": "Machine and Deep Learning",
-                "image": "assets/images/movie-recommendation-resized.jpeg",
-                "github_link": "https://github.com/vijayrampatel/MovieRecommendationSystem/tree/main",
-            },
-        ]
+#         project_data = [
+#             {
+#                 "title": "Redfin Housing Data Pipeline And Visualization",
+#                 "description": "Data Engineering",
+#                 "category": "Data Engineering and Analysis",
+#                 "image": "assets/images/redfin.jpg",
+#                 "github_link": "https://github.com/yourusername/redfin-project",
+#             },
+#             {
+#                 "title": "Kafka Data Pipeline With Streamlined Processing",
+#                 "description": "Real Time Analytics",
+#                 "category": "Data Engineering and Analysis",
+#                 "image": "assets/images/kafka.png",
+#                 "github_link": "https://github.com/yourusername/Data-pipeline-Kafka",
+#             },
+#             {
+#                 "title": "Layoffs Data Visualization",
+#                 "description": "ETL and Data Visualization",
+#                 "category": "Data Engineering and Analysis",
+#                 "image": "assets/images/Layoffs.png",
+#                 "github_link": "Layoffs.png",
+#             },
+#             {
+#                 "title": "Fraud Transaction Detection",
+#                 "description": "Machine Learning",
+#                 "category": "Machine and Deep Learning",
+#                 "image": "assets/images/fraud_transaction.png",
+#                 "github_link": "https://github.com/yourusername/fraud-detection",
+#             },
+#             {
+#                 "title": "Movie Recommendation System",
+#                 "description": "NLP",
+#                 "category": "Machine and Deep Learning",
+#                 "image": "assets/images/movie-recommendation-resized.jpeg",
+#                 "github_link": "https://github.com/yourusername/MovieRecommendationSystem/tree/main",
+#             },
+#         ]
 
-        tabs = ["All", "Generative and AI Agents", "Machine and Deep Learning", "Data Engineering and Analysis"]
-        selected_tab = st.radio("Filter by category:", tabs, horizontal=True)
+#         tabs = ["All", "Generative and AI Agents", "Machine and Deep Learning", "Data Engineering and Analysis"]
+#         selected_tab = st.radio("Filter by category:", tabs, horizontal=True)
 
-        if selected_tab == "All":
-            filtered = project_data
-        else:
-            filtered = [p for p in project_data if p["category"] == selected_tab]
+#         if selected_tab == "All":
+#             filtered = project_data
+#         else:
+#             filtered = [p for p in project_data if p["category"] == selected_tab]
 
-        st.markdown(
-            """
-            <style>
-                .project-card { position: relative; overflow: hidden; border-radius: 10px; }
-                .project-card img { transition: transform 0.3s ease; width:100%; border-radius:10px; }
-                .project-card:hover img { transform: scale(1.06); }
-                .project-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; opacity:0; transition: opacity 0.3s ease; }
-                .project-card:hover .project-overlay { opacity:1; }
-                .project-overlay-icon { font-size: 50px; color:#fff; }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
+#         st.markdown(
+#             """
+#             <style>
+#                 .project-card { position: relative; overflow: hidden; border-radius: 10px; }
+#                 .project-card img { transition: transform 0.3s ease; width:100%; border-radius:10px; }
+#                 .project-card:hover img { transform: scale(1.06); }
+#                 .project-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; opacity:0; transition: opacity 0.3s ease; }
+#                 .project-card:hover .project-overlay { opacity:1; }
+#                 .project-overlay-icon { font-size: 50px; color:#fff; }
+#             </style>
+#             """,
+#             unsafe_allow_html=True,
+#         )
 
-        cols_per_row = 4
-        for i in range(0, len(filtered), cols_per_row):
-            cols = st.columns(cols_per_row)
-            for col, project in zip(cols, filtered[i : i + cols_per_row]):
-                with col:
-                    image_path = project["image"]
-                    if os.path.exists(image_path):
-                        with open(image_path, "rb") as f:
-                            img64 = base64.b64encode(f.read()).decode()
-                        st.markdown(
-                            f"""
-                            <div class="project-card">
-                                <a href="{html.escape(project['github_link'])}" target="_blank">
-                                    <img src="data:image/jpg;base64,{img64}">
-                                    <div class="project-overlay"><span class="project-overlay-icon">👁️</span></div>
-                                </a>
-                            </div>
-                            <h4 style="margin-top:10px;">{html.escape(project['title'])}</h4>
-                            <p>{html.escape(project['description'])}</p>
-                            """,
-                            unsafe_allow_html=True,
-                        )
-                    else:
-                        st.warning(f"Image not found for {project['title']}")
+#         cols_per_row = 4
+#         for i in range(0, len(filtered), cols_per_row):
+#             cols = st.columns(cols_per_row)
+#             for col, project in zip(cols, filtered[i : i + cols_per_row]):
+#                 with col:
+#                     image_path = project["image"]
+#                     if os.path.exists(image_path):
+#                         with open(image_path, "rb") as f:
+#                             img64 = base64.b64encode(f.read()).decode()
+#                         st.markdown(
+#                             f"""
+#                             <div class="project-card">
+#                                 <a href="{html.escape(project['github_link'])}" target="_blank">
+#                                     <img src="data:image/jpg;base64,{img64}">
+#                                     <div class="project-overlay"><span class="project-overlay-icon">👁️</span></div>
+#                                 </a>
+#                             </div>
+#                             <h4 style="margin-top:10px;">{html.escape(project['title'])}</h4>
+#                             <p>{html.escape(project['description'])}</p>
+#                             """,
+#                             unsafe_allow_html=True,
+#                         )
+#                     else:
+#                         st.warning(f"Image not found for {project['title']}")
 
 # -------------------------------
 # 10) RESUME TAB — unified approach (no webbrowser on server)
@@ -1245,6 +1245,7 @@ def resume_tab():
 # 11) CONTACT TAB (unchanged logic)
 # -------------------------------
 
+
 def contact():
     col1, _, col3 = st.columns([7, 1, 20])
     with col1:
@@ -1263,24 +1264,43 @@ def contact():
             unsafe_allow_html=True,
         )
 
-        full_name = st.text_input("Full Name", placeholder="Enter your full name")
-        email = st.text_input("Email Address", placeholder="Enter your email address")
-        message = st.text_area("Message", placeholder="Type your message here…")
 
-        if st.button("Send Message"):
-            if full_name and email and message:
-                formspree_url = "https://formspree.io/f/mldwrvyr"
-                data = {"fullname": full_name, "email": email, "message": message}
-                try:
-                    r = requests.post(formspree_url, data=data, timeout=10)
-                    if r.status_code == 200:
-                        st.success("Your message has been sent successfully!")
-                    else:
-                        st.error("Failed to send your message. Please try again later.")
-                except Exception as e:
-                    st.error(f"Failed to send your message. {e}")
-            else:
+        # --- Contact Form ---
+        with st.form("contact_form", clear_on_submit=False):
+            full_name = st.text_input("Full Name", placeholder="Enter your full name")
+            email = st.text_input("Email Address", placeholder="Enter your email address")
+            message = st.text_area("Message", placeholder="Type your message here…")
+            submitted = st.form_submit_button("Send Message")
+
+        if submitted:
+            if not (full_name and email and message):
                 st.error("Please fill out all fields before submitting.")
+            elif not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+                st.error("Please enter a valid email address.")
+            else:
+                formspree_url = "https://formspree.io/f/mnnjezkg"  # your endpoint
+                data = {
+                    "fullname": full_name,
+                    "email": email,
+                    "message": message,
+                    "_subject": f"New message from {full_name} via Portfolio",
+                }
+                headers = {"Accept": "application/json"}
+
+                with st.spinner("Sending your message…"):
+                    try:
+                        r = requests.post(formspree_url, data=data, headers=headers, timeout=10)
+                        if 200 <= r.status_code < 300:
+                            st.success("Your message has been sent successfully!")
+                            # Clear fields
+                            st.session_state["Full Name"] = ""
+                            st.session_state["Email Address"] = ""
+                            st.session_state["Message"] = ""
+                        else:
+                            st.error(f"Failed to send your message (HTTP {r.status_code}).")
+                    except Exception as e:
+                        st.error(f"Failed to send your message. {e}")
+
 
 # -------------------------------
 # 12) NAVIGATION
@@ -1288,7 +1308,7 @@ def contact():
 
 selected_tab = option_menu(
     menu_title=None,
-    options=["About Me", "Technical Experience", "Projects", "Resume", "Contact"],
+    options=["About Me", "Technical Experience", "Resume", "Contact"],
     icons=["person", "briefcase", "folder", "info", "envelope"],
     menu_icon="cast",
     default_index=0,
@@ -1299,8 +1319,6 @@ if selected_tab == "About Me":
     render_about_me()
 elif selected_tab == "Technical Experience":
     render_research_experience()
-elif selected_tab == "Projects":
-    projects()
 elif selected_tab == "Resume":
     resume_tab()
 elif selected_tab == "Contact":
