@@ -4,4 +4,4 @@ requests
 streamlit-option-menu
 numpy
 scikit-learn
-google-genai
+google-generativeai
