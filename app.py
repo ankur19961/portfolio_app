@@ -798,7 +798,7 @@ Please provide a helpful, accurate response based on the context above. If the c
 
         # Use gemini-2.5-pro for best quality
         response = client.models.generate_content(
-            model="gemini-2.5-pro",
+            model="gemini-1.5-flash",
             contents=full_prompt,
             config={
                 "system_instruction": system_instruction,
@@ -1269,7 +1269,7 @@ def contact():
 
         if st.button("Send Message"):
             if full_name and email and message:
-                formspree_url = "https://formspree.io/f/mnnjezkg"
+                formspree_url = "https://formspree.io/f/mldwrvyr"
                 data = {"fullname": full_name, "email": email, "message": message}
                 try:
                     r = requests.post(formspree_url, data=data, timeout=10)
