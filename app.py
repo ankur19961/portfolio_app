@@ -1278,7 +1278,7 @@ def contact():
             elif not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
                 st.error("Please enter a valid email address.")
             else:
-                formspree_url = "https://formspree.io/f/mnnjezkg"  # your endpoint
+                formspree_url = "https://formspree.io/f/mldwrvyr"  # your endpoint
                 data = {
                     "fullname": full_name,
                     "email": email,
