@@ -1309,7 +1309,7 @@ def contact():
 selected_tab = option_menu(
     menu_title=None,
     options=["About Me", "Technical Experience", "Resume", "Contact"],
-    icons=["person", "briefcase", "folder", "info", "envelope"],
+    icons=["person", "briefcase", "folder", "envelope"],
     menu_icon="cast",
     default_index=0,
     orientation="horizontal",
