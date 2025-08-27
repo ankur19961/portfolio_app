@@ -569,425 +569,51 @@ def inject_global_css():
     st.markdown(
         """
         <style>
-            /* Theme-aware CSS variables that adapt to Streamlit's theme */
+            /* Global tokens derived from Streamlit theme when possible */
             :root {
-                --primary-bg: var(--background-color, #1a1a1a);
-                --secondary-bg: var(--secondary-background-color, #2a2a2a);
-                --text-primary: var(--text-color, #ffffff);
-                --text-secondary: var(--text-color, #aaaaaa);
-                --border-color: var(--border-color, #333333);
+                --primary-color: #1a1a1a;
+                --secondary-color: #333333;
+                --text-color: #ffffff;
+                --accent-color: #aaaaaa;
             }
-            
-            /* Light mode overrides */
-            [data-theme="light"], .stApp[data-theme="light"] {
-                --primary-bg: #ffffff;
-                --secondary-bg: #f8f9fa;
-                --text-primary: #262730;
-                --text-secondary: #6c757d;
-                --border-color: #e1e5e9;
-            }
-            
-            /* Dark mode overrides */
-            [data-theme="dark"], .stApp[data-theme="dark"] {
-                --primary-bg: #1a1a1a;
-                --secondary-bg: #2a2a2a;
-                --text-primary: #ffffff;
-                --text-secondary: #aaaaaa;
-                --border-color: #333333;
-            }
-            
-            /* Auto-detect system theme preference */
-            @media (prefers-color-scheme: light) {
-                :root:not([data-theme]) {
-                    --primary-bg: #ffffff;
-                    --secondary-bg: #f8f9fa;
-                    --text-primary: #262730;
-                    --text-secondary: #6c757d;
-                    --border-color: #e1e5e9;
-                }
-            }
-            
-            @media (prefers-color-scheme: dark) {
-                :root:not([data-theme]) {
-                    --primary-bg: #1a1a1a;
-                    --secondary-bg: #2a2a2a;
-                    --text-primary: #ffffff;
-                    --text-secondary: #aaaaaa;
-                    --border-color: #333333;
-                }
-            }
-            
-            /* Chat container with theme awareness */
-            .chatbot-container {
-                background: var(--primary-bg);
+            /* Chat container */
+            .chatbot-container {{
+                background: #1a1a1a;
                 border-radius: 14px;
-                border: 1px solid var(--border-color);
-                display: flex; 
-                flex-direction: column;
-                position: relative; 
-                overflow: hidden;
+                border: 1px solid #333;
+                display: flex; flex-direction: column;
+                position: relative; overflow: hidden;
                 height: 420px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-            
-            .chatbot-header {
-                background: linear-gradient(145deg, var(--secondary-bg), var(--primary-bg));
-                color: var(--text-primary);
+            }}
+            .chatbot-header {{
+                background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+                color: #fff;
                 padding: 12px 15px;
                 border-radius: 14px 14px 0 0;
-                position: sticky; 
-                top: 0; 
-                z-index: 100;
+                position: sticky; top: 0; z-index: 100;
                 flex-shrink: 0;
-                border-bottom: 1px solid var(--border-color);
-            }
-            
-            .chatbot-messages {
-                overflow-y: auto; 
-                padding: 16px;
-                display: flex; 
-                flex-direction: column;
-                gap: 12px; 
-                flex-grow: 1; 
-                height: 380px;
+            }}
+            .chatbot-messages {{
+                overflow-y: auto; padding: 16px;
+                display: flex; flex-direction: column;
+                gap: 12px; flex-grow: 1; height: 380px;
                 scroll-behavior: smooth;
-                background: var(--primary-bg);
-            }
-            
-            .message-row { 
-                display: flex; 
-                width: 100%; 
-            }
-            
-            .user-row { 
-                justify-content: flex-end; 
-            }
-            
-            .bot-row { 
-                justify-content: flex-start; 
-            }
-            
-            .user-message, .bot-message {
-                word-wrap: break-word; 
-                white-space: pre-wrap; 
-                overflow-wrap: break-word;
-                max-width: 75%; 
-                padding: 12px 16px; 
-                border-radius: 12px; 
-                line-height: 1.4;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            }
-            
-            .user-message { 
-                background: var(--secondary-bg); 
-                color: var(--text-primary); 
-                border-radius: 12px 12px 0 12px;
-                border: 1px solid var(--border-color);
-            }
-            
-            .bot-message { 
-                background: var(--secondary-bg); 
-                color: var(--text-primary); 
-                border-radius: 12px 12px 12px 0;
-                border: 1px solid var(--border-color);
-            }
-            
-            .scroll-to { 
-                height: 1px; 
-            }
-            
-            /* Form styling with theme awareness */
-            .stForm { 
-                background: var(--primary-bg) !important; 
-                border-radius: 0 0 14px 14px !important; 
-                border: 1px solid var(--border-color) !important; 
-                border-top: none !important; 
-                margin-top: -16px !important; 
-                padding: 1rem !important; 
-            }
-            
-            .stTextInput input { 
-                background: var(--secondary-bg) !important; 
-                color: var(--text-primary) !important; 
-                border-radius: 20px !important; 
-                padding: 8px 16px !important; 
-                border: 1px solid var(--border-color) !important; 
-            }
-            
-            .stTextInput input::placeholder {
-                color: var(--text-secondary) !important;
-            }
-            
-            .stButton button { 
-                background: var(--secondary-bg) !important; 
-                color: var(--text-primary) !important; 
-                border-radius: 20px !important; 
-                padding: 5px 15px !important;
-                border: 1px solid var(--border-color) !important;
-                transition: all 0.2s ease;
-            }
-            
-            .stButton button:hover {
-                background: var(--border-color) !important;
-                transform: translateY(-1px);
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-            
-            /* Profile section theme awareness */
-            .main-card { 
-                max-width: 500px; 
-                margin: 0 auto; 
-                padding: 0.5rem; 
-                background-color: var(--primary-bg); 
-                border-radius: 15px; 
-                color: var(--text-primary); 
-                text-align: center;
-                border: 1px solid var(--border-color);
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-            
-            .profile-img { 
-                width: 200px; 
-                height: 200px; 
-                border-radius: 50%; 
-                object-fit: cover; 
-                margin-bottom: 1rem; 
-                border: 3px solid var(--border-color); 
-            }
-            
-            .name { 
-                font-size: 2rem; 
-                font-weight: bold; 
-                margin-bottom: 0.5rem; 
-                display: flex; 
-                align-items: center; 
-                justify-content: center;
-                color: var(--text-primary);
-            }
-            
-            .title { 
-                color: var(--text-secondary); 
-                background-color: var(--secondary-bg); 
-                padding: 0.5rem 1rem; 
-                border-radius: 20px; 
-                display: flex; 
-                font-size: 0.9rem; 
-                align-items: center; 
-                justify-content: center;
-                border: 1px solid var(--border-color);
-            }
-            
-            .contact-item { 
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                margin-top: 1.0rem; 
-                gap: 0.6rem;
-                color: var(--text-primary);
-            }
-            
-            .contact-word { 
-                color: var(--text-secondary); 
-                font-weight: bold;
-            }
-            
-            .social-icons { 
-                display: flex; 
-                justify-content: center; 
-                gap: 1.5rem; 
-                margin-top: 1.2rem; 
-            }
-            
-            .social-icon { 
-                width: 30px; 
-                transition: transform 0.3s ease-in-out; 
-                filter: brightness(0) invert(1);
-            }
-            
-            /* Light mode icon adjustments */
-            [data-theme="light"] .social-icon,
-            @media (prefers-color-scheme: light) {
-                :root:not([data-theme]) .social-icon {
-                    filter: brightness(0) invert(0.2);
-                }
-            }
-            
-            .social-icon:hover { 
-                transform: scale(1.08); 
-            }
-            
-            /* Experience blocks theme awareness */
-            .experience-block { 
-                display: flex; 
-                background-color: var(--primary-bg); 
-                border-radius: 10px; 
-                margin-bottom: 20px; 
-                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
-                overflow: hidden;
-                border: 1px solid var(--border-color);
-            }
-            
-            .experience-left { 
-                background-color: #F7C873; 
-                padding: 20px; 
-                flex: 1; 
-                display: flex; 
-                flex-direction: column; 
-                justify-content: center; 
-                align-items: center; 
-                text-align: center; 
-                font-weight: bold; 
-                color: #000000; /* Always dark text on yellow background */
-            }
-            
-            .experience-right { 
-                padding: 20px; 
-                flex: 3;
-                background-color: var(--primary-bg);
-                color: var(--text-primary);
-            }
-            
-            .experience-details { 
-                font-size: 16px; 
-                line-height: 1.5;
-                color: var(--text-primary);
-            }
-            
-            .experience-details ul { 
-                padding-left: 20px; 
-            }
-            
-            .experience-details li { 
-                margin-bottom: 10px;
-                color: var(--text-primary);
-            }
-            
-            /* Project cards theme awareness */
-            .project-card { 
-                position: relative; 
-                overflow: hidden; 
-                border-radius: 10px;
-                border: 1px solid var(--border-color);
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-            
-            .project-card img { 
-                transition: transform 0.3s ease; 
-                width: 100%; 
-                border-radius: 10px; 
-            }
-            
-            .project-card:hover img { 
-                transform: scale(1.06); 
-            }
-            
-            .project-overlay { 
-                position: absolute; 
-                top: 0; 
-                left: 0; 
-                width: 100%; 
-                height: 100%; 
-                background: rgba(0, 0, 0, 0.5); 
-                display: flex; 
-                justify-content: center; 
-                align-items: center; 
-                opacity: 0; 
-                transition: opacity 0.3s ease; 
-            }
-            
-            .project-card:hover .project-overlay { 
-                opacity: 1; 
-            }
-            
-            .project-overlay-icon { 
-                font-size: 50px; 
-                color: #fff; 
-            }
-            
-            /* Ensure all text elements respect theme */
-            h1, h2, h3, h4, h5, h6 {
-                color: var(--text-primary) !important;
-            }
-            
-            p, span, div {
-                color: var(--text-primary);
-            }
-            
-            /* Tab navigation theme awareness */
-            .nav-link {
-                color: var(--text-primary) !important;
-            }
-            
-            .nav-link.active {
-                background-color: var(--secondary-bg) !important;
-                border-color: var(--border-color) !important;
-            }
-            
-            /* Streamlit specific overrides */
-            .stMarkdown {
-                color: var(--text-primary) !important;
-            }
-            
-            .stSelectbox label {
-                color: var(--text-primary) !important;
-            }
-            
-            .stRadio label {
-                color: var(--text-primary) !important;
-            }
-            
-            /* Contact form theme awareness */
-            .stForm label {
-                color: var(--text-primary) !important;
-            }
-            
-            .stTextArea textarea {
-                background: var(--secondary-bg) !important;
-                color: var(--text-primary) !important;
-                border: 1px solid var(--border-color) !important;
-            }
-            
-            .stTextArea textarea::placeholder {
-                color: var(--text-secondary) !important;
-            }
+            }}
+            .message-row {{ display: flex; width: 100%; }}
+            .user-row   {{ justify-content: flex-end; }}
+            .bot-row    {{ justify-content: flex-start; }}
+            .user-message, .bot-message {{
+                word-wrap: break-word; white-space: pre-wrap; overflow-wrap: break-word;
+                max-width: 75%; padding: 12px 16px; border-radius: 12px; line-height: 1.4;
+            }}
+            .user-message {{ background: #2a2a2a; color: white; border-radius: 12px 12px 0 12px; }}
+            .bot-message  {{ background: #2a2a2a; color: white; border-radius: 12px 12px 12px 0; }}
+            .scroll-to {{ height: 1px; }}
+            /* Form styling */
+            .stForm {{ background: #1a1a1a; border-radius: 0 0 14px 14px; border: 1px solid #333; border-top: none; margin-top: -16px !important; padding: 1rem; }}
+            .stTextInput input {{ background: #2a2a2a !important; color: white !important; border-radius: 20px !important; padding: 8px 16px !important; border: none !important; }}
+            .stButton button {{ background: #2a2a2a !important; color: white !important; border-radius: 20px !important; padding: 5px 15px !important; }}
         </style>
-        
-        <script>
-            // JavaScript to detect and apply theme
-            function detectAndApplyTheme() {
-                const streamlitDoc = window.parent.document;
-                const theme = streamlitDoc.documentElement.getAttribute('data-theme') || 
-                             (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                
-                document.documentElement.setAttribute('data-theme', theme);
-                
-                // Also set it on the body for compatibility
-                document.body.setAttribute('data-theme', theme);
-            }
-            
-            // Apply theme on load
-            window.addEventListener('load', detectAndApplyTheme);
-            
-            // Watch for theme changes
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-                        detectAndApplyTheme();
-                    }
-                });
-            });
-            
-            // Start observing
-            if (window.parent.document.documentElement) {
-                observer.observe(window.parent.document.documentElement, {
-                    attributes: true,
-                    attributeFilter: ['data-theme']
-                });
-            }
-            
-            // Also listen for system theme changes
-            window.matchMedia('(prefers-color-scheme: dark)').addListener(detectAndApplyTheme);
-        </script>
         """,
         unsafe_allow_html=True,
     )
