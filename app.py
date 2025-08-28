@@ -6,7 +6,7 @@ import html
 import re
 from pathlib import Path
 from typing import List, Tuple, Optional
-
+import streamlit.components.v1 as components
 import numpy as np
 import requests
 import streamlit as st
@@ -14,6 +14,311 @@ from openai import OpenAI
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from streamlit_option_menu import option_menu
+
+
+
+def inject_global_css():
+    st.markdown(
+        """
+        <style>
+          /* ---------- LIGHT MODE (DEFAULT) ---------- */
+          :root {
+            --primary-color: #ffffff;          /* white background */
+            --secondary-color: #f8f9fa;       /* light gray for inputs */
+            --text-color: #212529;            /* dark text */
+            --accent-color: #6c757d;          /* gray accent */
+            --panel-bg: #ffffff;              /* white panels */
+            --panel-muted: #f8f9fa;           /* light gray bubbles */
+            --panel-border: #dee2e6;          /* light borders */
+          }
+          
+          /* ---------- DARK MODE ---------- */
+          @media (prefers-color-scheme: dark) {
+            :root {
+              --primary-color: #0f1115;        /* dark background */
+              --secondary-color: #1b1f24;      /* dark gray for inputs */
+              --text-color: #e5e7eb;           /* light text */
+              --accent-color: #9ca3af;         /* light gray accent */
+              --panel-bg: #111418;             /* dark panels */
+              --panel-muted: #1c2128;          /* darker bubbles */
+              --panel-border: #374151;         /* dark borders */
+            }
+          }
+
+          /* ---------- BASE APP STYLING ---------- */
+          .stApp {
+            background-color: var(--primary-color) !important;
+          }
+          
+          .main .block-container {
+            background-color: var(--primary-color) !important;
+          }
+
+          /* ---------- CHAT CONTAINER ---------- */
+          .chatbot-container {
+            background: var(--panel-bg) !important;
+            border: 1px solid var(--panel-border) !important;
+            border-radius: 14px;
+            display: flex; 
+            flex-direction: column;
+            position: relative; 
+            overflow: hidden; 
+            height: 420px;
+          }
+          
+          .chatbot-header {
+            background: var(--secondary-color) !important;
+            color: var(--text-color) !important;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--panel-border);
+          }
+          
+          .chatbot-header h4 {
+            color: var(--text-color) !important;
+            margin: 0;
+            font-weight: 500;
+          }
+          
+          .chatbot-messages { 
+            background: var(--panel-bg) !important;
+            overflow-y: auto; 
+            padding: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            flex-grow: 1; 
+            height: 380px; 
+          }
+
+          /* ---------- CHAT MESSAGES ---------- */
+          .message-row { 
+            display: flex; 
+            width: 100%; 
+          }
+          
+          .user-row { 
+            justify-content: flex-end; 
+          }
+          
+          .bot-row { 
+            justify-content: flex-start; 
+          }
+
+          .user-message {
+            background: var(--secondary-color) !important;
+            color: var(--text-color) !important;
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 12px 12px 0 12px;
+            line-height: 1.4;
+          }
+          
+          .bot-message { 
+            background: var(--panel-muted) !important;
+            color: var(--text-color) !important;
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 12px 12px 12px 0;
+            line-height: 1.4;
+          }
+
+          /* ---------- FORMS ---------- */
+          .stForm {
+            background: var(--panel-bg) !important;
+            border: 1px solid var(--panel-border) !important;
+            border-radius: 12px !important;
+            padding: 1rem !important;
+          }
+          
+          /* Text inputs and textareas */
+          .stTextInput > div > div > input,
+          .stTextArea > div > div > textarea,
+          input[type="text"],
+          input[type="email"],
+          textarea {
+            background: var(--secondary-color) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--panel-border) !important;
+            border-radius: 8px !important;
+          }
+          
+          /* Buttons */
+          .stButton > button,
+          button[type="submit"] {
+            background: var(--secondary-color) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--panel-border) !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease;
+          }
+          
+          .stButton > button:hover,
+          button[type="submit"]:hover {
+            background: var(--panel-muted) !important;
+            border-color: var(--accent-color) !important;
+          }
+
+          /* ---------- CHAT FORM SPECIFIC ---------- */
+          #ank-chat .stForm {
+            background: var(--panel-bg) !important;
+            border: 1px solid var(--panel-border) !important;
+            border-top: none !important;
+            border-radius: 0 0 14px 14px !important;
+            margin-top: -16px !important;
+          }
+
+          /* ---------- TYPOGRAPHY ---------- */
+          h1, h2, h3, h4, h5, h6 {
+            color: var(--text-color) !important;
+          }
+          
+          p, div, span, li, label {
+            color: var(--text-color) !important;
+          }
+          
+          .stMarkdown {
+            color: var(--text-color) !important;
+          }
+
+          /* ---------- NAVIGATION ---------- */
+          .nav-link {
+            color: var(--text-color) !important;
+            background: transparent !important;
+          }
+          
+          .nav-link.active {
+            background: var(--secondary-color) !important;
+            color: var(--text-color) !important;
+          }
+
+          /* ---------- RADIO BUTTONS ---------- */
+          .stRadio > div {
+            background: transparent !important;
+          }
+          
+          .stRadio label {
+            color: var(--text-color) !important;
+          }
+
+          /* ---------- SELECTBOXES ---------- */
+          .stSelectbox > div > div {
+            background: var(--secondary-color) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--panel-border) !important;
+          }
+
+          /* ---------- PROFILE SIDEBAR ---------- */
+          .main-card {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+          
+          .main-card .name {
+            color: var(--text-color) !important;
+            font-weight: 800;
+          }
+          
+          .main-card .title {
+            color: var(--accent-color) !important;
+            background: transparent !important;
+          }
+          
+          .contact-item {
+            color: var(--text-color) !important;
+          }
+          
+          .contact-word {
+            color: var(--accent-color) !important;
+            background: transparent !important;
+          }
+
+          /* ---------- EXPERIENCE BLOCKS ---------- */
+          .experience-block {
+            background: var(--panel-bg) !important;
+            border: 1px solid var(--panel-border) !important;
+            color: var(--text-color) !important;
+          }
+          
+          .experience-right {
+            background: var(--panel-bg) !important;
+            color: var(--text-color) !important;
+          }
+          
+          .experience-details {
+            color: var(--text-color) !important;
+          }
+          
+          .experience-details li {
+            color: var(--text-color) !important;
+            background: transparent !important;
+          }
+
+          /* ---------- LINK BUTTONS ---------- */
+          .stLinkButton > a {
+            background: var(--secondary-color) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--panel-border) !important;
+            text-decoration: none !important;
+          }
+
+          .stLinkButton > a:hover {
+            background: var(--panel-muted) !important;
+            border-color: var(--accent-color) !important;
+          }
+
+          /* ---------- STATUS MESSAGES ---------- */
+          .stSuccess {
+            background: #d4edda !important;
+            color: #155724 !important;
+            border: 1px solid #c3e6cb !important;
+          }
+          
+          .stError {
+            background: #f8d7da !important;
+            color: #721c24 !important;
+            border: 1px solid #f5c6cb !important;
+          }
+          
+          .stWarning {
+            background: #fff3cd !important;
+            color: #856404 !important;
+            border: 1px solid #ffeaa7 !important;
+          }
+          
+          .stInfo {
+            background: #d1ecf1 !important;
+            color: #0c5460 !important;
+            border: 1px solid #bee5eb !important;
+          }
+
+          /* ---------- DARK MODE OVERRIDES FOR STATUS ---------- */
+          @media (prefers-color-scheme: dark) {
+            .stSuccess {
+              background: #1a4a3a !important;
+              color: #d4edda !important;
+            }
+            
+            .stError {
+              background: #4a1a1a !important;
+              color: #f8d7da !important;
+            }
+            
+            .stWarning {
+              background: #4a4a1a !important;
+              color: #fff3cd !important;
+            }
+            
+            .stInfo {
+              background: #1a3a4a !important;
+              color: #d1ecf1 !important;
+            }
+          }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
 
 # -------------------------------
 # 0) PAGE CONFIG
@@ -23,6 +328,8 @@ st.set_page_config(
     layout="wide",
     page_icon="👧🏻",
 )
+
+inject_global_css()
 
 # Single initialization of commonly used session items
 if "chat_history" not in st.session_state:
@@ -565,69 +872,31 @@ questions = [
 # 2) CSS HELPERS
 # -------------------------------
 
-def inject_global_css():
-    st.markdown(
-        """
-        <style>
-            /* Global tokens derived from Streamlit theme when possible */
-            :root {
-                --primary-color: #1a1a1a;
-                --secondary-color: #333333;
-                --text-color: #ffffff;
-                --accent-color: #aaaaaa;
-            }
-            /* Chat container */
-            .chatbot-container {{
-                background: #1a1a1a;
-                border-radius: 14px;
-                border: 1px solid #333;
-                display: flex; flex-direction: column;
-                position: relative; overflow: hidden;
-                height: 420px;
-            }}
-            .chatbot-header {{
-                background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-                color: #fff;
-                padding: 12px 15px;
-                border-radius: 14px 14px 0 0;
-                position: sticky; top: 0; z-index: 100;
-                flex-shrink: 0;
-            }}
-            .chatbot-messages {{
-                overflow-y: auto; padding: 16px;
-                display: flex; flex-direction: column;
-                gap: 12px; flex-grow: 1; height: 380px;
-                scroll-behavior: smooth;
-            }}
-            .message-row {{ display: flex; width: 100%; }}
-            .user-row   {{ justify-content: flex-end; }}
-            .bot-row    {{ justify-content: flex-start; }}
-            .user-message, .bot-message {{
-                word-wrap: break-word; white-space: pre-wrap; overflow-wrap: break-word;
-                max-width: 75%; padding: 12px 16px; border-radius: 12px; line-height: 1.4;
-            }}
-            .user-message {{ background: #2a2a2a; color: white; border-radius: 12px 12px 0 12px; }}
-            .bot-message  {{ background: #2a2a2a; color: white; border-radius: 12px 12px 12px 0; }}
-            .scroll-to {{ height: 1px; }}
-            /* Form styling */
-            .stForm {{ background: #1a1a1a; border-radius: 0 0 14px 14px; border: 1px solid #333; border-top: none; margin-top: -16px !important; padding: 1rem; }}
-            .stTextInput input {{ background: #2a2a2a !important; color: white !important; border-radius: 20px !important; padding: 8px 16px !important; border: none !important; }}
-            .stButton button {{ background: #2a2a2a !important; color: white !important; border-radius: 20px !important; padding: 5px 15px !important; }}
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
 
 
 def format_message(role: str, text: str) -> str:
-    """Safely format a chat bubble for 'user' or 'bot'."""
-    safe = html.escape(text or "")
-    if role == "bot":
-        safe = safe.replace("\n", "<br>")
+    """Safely format a chat bubble for 'user' or 'bot' with a bot icon."""
+    safe = html.escape(text or "").replace("\n", "<br>")
     cls = "user-message" if role == "user" else "bot-message"
     row = "user-row" if role == "user" else "bot-row"
-    return f'<div class="message-row {row}"><div class="{cls}">{safe}</div></div>'
 
+    # Small icon only for bot replies
+    bot_icon = '<span style="margin-right:6px">🤖</span>' if role == "bot" else ""
+
+    return (
+        f'<div class="message-row {row}">'
+        f'  <div class="{cls}">{bot_icon}{safe}</div>'
+        f'</div>'
+    )
+
+# ### PATCH 1: reusable chat renderer that can include a partial bot message
+def render_chat_html(partial_bot: Optional[str] = None) -> str:
+    # Build message bubbles for everything in history
+    bubbles = [format_message(m["role"], m["content"]) for m in st.session_state.chat_history]
+    # If we're streaming, render the live bot bubble at the end
+    if partial_bot is not None:
+        bubbles.append(format_message("bot", partial_bot))
+    return "".join(bubbles)
 
 # -------------------------------
 # 3) TEXT UTILS & TF-IDF CACHING
@@ -751,88 +1020,70 @@ def retrieve_bio_context(query: str, bio_text: str, k: int = 3, min_chars: int =
 
 
 
-def ask_bot(input_text, bio_content):
-    typing_placeholder = st.empty()
-    
+# ### PATCH 2: streaming version of ask_bot()
+def ask_bot_stream(input_text: str, bio_content: str):
+    """
+    Yields text chunks as they arrive from Gemini.
+    """
     try:
         from google import genai
-        
         if "GEMINI_API_KEY" not in st.secrets:
-            typing_placeholder.empty()
-            return "API configuration missing. Please contact the administrator."
+            yield "API configuration missing. Please contact the administrator."
+            return
 
-        typing_placeholder.markdown("🤖 AnkBot is typing...", unsafe_allow_html=True)
-        
-        # Initialize Gemini client
         client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-        
-        # Enhanced system instruction for better responses
+
         system_instruction = (
-            "You are AnkBot, an AI assistant representing Ankur Shukla, a Senior Data Scientist with 6+ years of experience. "
-            "You are knowledgeable, professional, and enthusiastic about Ankur's work.\n\n"
-            
+            "You are AnkBot, an AI assistant representing Ankur Shukla, a Senior Data Scientist with 6+ years of experience.\n"
             "CONTEXT USAGE:\n"
             "- Use the provided context as your primary source of information\n"
             "- If information isn't in the context, politely direct users to contact Ankur directly\n"
             "- Never invent or assume information not provided\n\n"
-            
             "RESPONSE STYLE:\n"
             "- Professional yet conversational tone\n"
-            "- Use plain text (no markdown, no asterisks, no bold formatting)\n"
+            "- Use plain text (no markdown)\n"
             "- Use hyphens (-) for bullet points\n"
             "- Keep responses focused and relevant\n"
-            "- Show enthusiasm for Ankur's technical achievements\n"
             "- Include specific metrics and results when available in context\n\n"
-            
             "CONTACT INFO:\n"
             "For detailed discussions or opportunities, direct users to: ankurshukla19961@gmail.com"
         )
-        
-        # Create comprehensive prompt
+
         full_prompt = f"""CONTEXT ABOUT ANKUR SHUKLA:
 {bio_content}
 
 USER QUESTION: {input_text}
-
 Please provide a helpful, accurate response based on the context above. If the context doesn't contain specific information needed to fully answer the question, acknowledge this and suggest contacting Ankur directly."""
 
-        # Use gemini-2.5-pro for best quality
-        response = client.models.generate_content(
+        # Stream chunks as they arrive
+        stream = client.models.generate_content_stream(
             model="gemini-1.5-flash",
             contents=full_prompt,
             config={
                 "system_instruction": system_instruction,
-                "temperature": 0.2,  # More consistent, professional responses
-                "max_output_tokens": 1000,  # Allow for detailed responses
-                "top_p": 0.8,  # Focused but not overly restrictive
-                "top_k": 40
-            }
+                "temperature": 0.2,
+                "max_output_tokens": 1000,
+                "top_p": 0.8,
+                "top_k": 40,
+            },
         )
 
-        typing_placeholder.empty()
-        
-        # Extract the response text
-        if hasattr(response, 'text') and response.text:
-            return response.text.strip()
-        elif hasattr(response, 'candidates') and response.candidates:
-            return response.candidates[0].content.parts[0].text.strip()
-        else:
-            return "I received an empty response. Please try again."
+        for chunk in stream:
+            # The GenAI SDK stream yields response fragments with .text
+            txt = getattr(chunk, "text", "") or ""
+            if txt:
+                yield txt
 
     except Exception as e:
-        typing_placeholder.empty()
-        error_msg = str(e)
-        
-        # Detailed error handling
-        if "model not found" in error_msg.lower():
-            return "The AI model is temporarily unavailable. Please try again in a moment."
-        elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
-            return "I'm getting a lot of questions right now! Please try again in a minute."
-        elif "api key" in error_msg.lower():
-            return "There's an authentication issue. Please contact the administrator."
+        msg = str(e)
+        if "model not found" in msg.lower():
+            yield "The AI model is temporarily unavailable. Please try again in a moment."
+        elif "quota" in msg.lower() or "limit" in msg.lower():
+            yield "I'm getting a lot of questions right now! Please try again in a minute."
+        elif "api key" in msg.lower():
+            yield "There's an authentication issue. Please contact the administrator."
         else:
-            return "I'm having a brief connection issue. Please try your question again."
-
+            yield "I'm having a brief connection issue. Please try your question again."
 
 # -------------------------------
 # 6) LEFT PROFILE PANEL (unchanged content, structured)
@@ -850,21 +1101,93 @@ def side_page():
     st.markdown(
         """
         <style>
-            .main-card { max-width: 500px; margin: 0 auto; padding: 0.5rem; background-color: var(--primary-color); border-radius: 15px; color: var(--text-color); text-align: center; }
-            .profile-img { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid var(--secondary-color); }
-            .name { font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; display:flex; align-items:center; justify-content:center; }
-            .title { color: var(--accent-color); background-color: var(--secondary-color); padding: 0.5rem 1rem; border-radius: 20px; display:flex; font-size: 0.9rem; align-items:center; justify-content:center; }
-            .contact-item { display:flex; align-items:center; justify-content:center; margin-top: 1.0rem; gap:0.6rem; }
-            .contact-word { color: var(--accent-color); }
-            .social-icons { display:flex; justify-content:center; gap: 1.5rem; margin-top: 1.2rem; }
-            .social-icon { width: 30px; transition: transform 0.3s ease-in-out; }
-            .social-icon:hover { transform: scale(1.08); }
+          /* Side profile styling with proper theme support */
+          .main-card {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: .5rem 0;
+            background-color: transparent !important;
+            border: none !important;
+            color: var(--text-color) !important;
+            text-align: center;
+          }
+
+          .profile-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0,0,0,.06);
+          }
+
+          .name {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: .25rem 0 .25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color) !important;
+          }
+
+          .title {
+            color: var(--accent-color) !important;
+            font-size: .95rem;
+            font-weight: 500;
+            margin-bottom: .5rem;
+            background-color: transparent !important;
+            padding: 0;
+            border-radius: 0;
+          }
+
+          .contact-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: .6rem;
+            margin-top: .9rem;
+            color: var(--text-color) !important;
+          }
+
+          .contact-word {
+            color: var(--accent-color) !important;
+            letter-spacing: .04em;
+            background: transparent !important;
+          }
+
+          .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.1rem;
+            margin-top: 1.0rem;
+          }
+
+          .social-icon {
+            width: 28px; 
+            height: 28px;
+            transition: transform .2s ease;
+          }
+          
+          .social-icon:hover { 
+            transform: scale(1.06); 
+          }
+          
+          /* Contact item text styling */
+          .contact-item div {
+            color: var(--text-color) !important;
+          }
+          
+          .contact-item span {
+            color: var(--text-color) !important;
+          }
         </style>
         """,
         unsafe_allow_html=True,
     )
 
-    # Photo
+    # Photo and basic info
     st.markdown(
         f"""
         <div class="main-card">
@@ -878,14 +1201,14 @@ def side_page():
         unsafe_allow_html=True,
     )
 
-    # Contact rows
+    # Contact information with improved styling
     st.markdown(
         """
         <div class="contact-item">
-            <img src="https://img.icons8.com/ios-filled/50/ffffff/email.png" width="20" />
+            <img src="https://img.icons8.com/color/48/email.png" width="20" />
             <div>
                 <strong class="contact-word">EMAIL</strong><br>
-                ankurshukla19961@gmail.com
+                <span style="color: var(--text-color) !important;">ankurshukla19961@gmail.com</span>
             </div>
         </div>
         """,
@@ -894,10 +1217,10 @@ def side_page():
     st.markdown(
         """
         <div class="contact-item">
-            <img src="https://img.icons8.com/ios-filled/50/ffffff/phone.png" width="20" />
+            <img src="https://img.icons8.com/color/48/phone.png" width="20" />
             <div>
                 <strong class="contact-word">PHONE</strong><br>
-                +91 8097970726
+                <span style="color: var(--text-color) !important;">+91 8097970726</span>
             </div>
         </div>
         """,
@@ -906,10 +1229,10 @@ def side_page():
     st.markdown(
         """
         <div class="contact-item">
-            <img src="https://img.icons8.com/ios-filled/50/ffffff/marker.png" width="20" />
+            <img src="https://img.icons8.com/color/48/marker.png" width="20" />
             <div>
                 <strong class="contact-word">LOCATION</strong><br>
-                Mumbai, India
+                <span style="color: var(--text-color) !important;">Mumbai, India</span>
             </div>
         </div>
         """,
@@ -921,27 +1244,28 @@ def side_page():
         """
         <div class="social-icons">
             <a href="https://www.linkedin.com/in/ankurshukla1996/" target="_blank">
-                <img src="https://img.icons8.com/ios-filled/50/ffffff/linkedin.png" class="social-icon" />
+                <img src="https://img.icons8.com/color/48/linkedin.png" class="social-icon" />
             </a>
             <a href="https://github.com/ankur19961" target="_blank">
-                <img src="https://img.icons8.com/ios-filled/50/ffffff/github.png" class="social-icon" />
+                <img src="https://img.icons8.com/color/48/github.png" class="social-icon" />
             </a>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
+    
 # -------------------------------
 # 7) CHAT RENDERER (ABOUT ME)
 # -------------------------------
 
 def render_about_me():
-    inject_global_css()
+    import streamlit.components.v1 as components  # local import, matches your original
+    
 
     col1, _, col3 = st.columns([7, 1, 20])
     with col1:
         side_page()
-
     with col3:
         st.title("Hi, I am Ankur! 👋")
         st.write(
@@ -951,45 +1275,53 @@ def render_about_me():
             scalable inference services using PyTorch, Docker, and AWS to improve CX, automate workflows, and ensure compliance.
             """
         )
-
         st.header("Meet AnkBot! 🤖")
 
-        # Render chat history using unified HTML renderer
-        chat_messages_html = "".join(
-            format_message(m["role"], m["content"]) for m in st.session_state.chat_history
-        )
-        st.markdown(
-            f"""
-            <div class="chatbot-container">
-                <div class="chatbot-header">
-                    <h4 style="margin:0; font-weight: 500;">Ask AnkBot anything about me!</h4>
-                </div>
-                <div class="chatbot-messages" id="chat-messages">
-                    {chat_messages_html}
-                    <div id="scroll-target" class="scroll-to"></div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+       
+                    
+        # --- 3A) Render chat via a placeholder so we can live-update during streaming ---
+        chat_container_ph = st.empty()
 
-        # Input form
+        # First render: show everything currently in history (no partial bot bubble yet)
+        initial_html = f"""
+        <div class="chatbot-container">
+          <div class="chatbot-header">
+            <h4 style="margin:0; font-weight: 500;">Ask AnkBot anything about me!</h4>
+          </div>
+          <div class="chatbot-messages" id="chat-messages">
+            {render_chat_html()}
+            <div id="scroll-target" class="scroll-to"></div>
+          </div>
+        </div>
+        """
+        chat_container_ph.markdown(initial_html, unsafe_allow_html=True)
+
+        
+
+        # --- 3B) Input form: submit only appends user msg + stores 'pending_prompt', then rerun ---
         with st.form(key=f"chat_form_{st.session_state.message_counter}", clear_on_submit=True):
             user_input = st.text_input("Message", label_visibility="collapsed")
             submitted = st.form_submit_button("➤")
 
-        # Load BIO once (non-fatal if missing)
+        # Load bio context (non-fatal if missing)
         bio_text = load_bio_text()
         if not bio_text:
             st.info("bio.txt not found. I'll still try to help, but responses may be limited.")
 
         if submitted and user_input.strip():
             st.session_state.message_counter += 1
-            # Append user message
+            # Append the user's message immediately so it shows up right away
             st.session_state.chat_history.append({"role": "user", "content": user_input})
+            # Defer processing to phase 2 in the next run
+            st.session_state["pending_prompt"] = user_input
+            st.rerun()
 
-            # Heuristic for very long queries → soft guidance, but continue
-            if len(user_input.split()) > 80:
+        # --- 3C) Phase-2 processing + live typing effect (streaming) ---
+        if "pending_prompt" in st.session_state and st.session_state["pending_prompt"]:
+            pending = st.session_state["pending_prompt"]
+
+            # Optional heuristic message for very long questions (keep your original behavior)
+            if len(pending.split()) > 80:
                 st.session_state.metrics["too_long"] += 1
                 st.session_state.chat_history.append(
                     {
@@ -1000,48 +1332,83 @@ def render_about_me():
 
             # 1) Blocked prompts (fast path)
             bvec, bmat, bcorpus = get_blocked_model()
-            matched, match_key, score, idx = match_similarity(user_input, bvec, bmat, bcorpus, threshold=0.80)
+            matched, match_key, _, _ = match_similarity(pending, bvec, bmat, bcorpus, threshold=0.80)
             if matched:
                 st.session_state.metrics["blocked"] += 1
                 reply = blocked_prompts.get(match_key, "I understand.")
                 st.session_state.chat_history.append({"role": "bot", "content": reply})
+                st.session_state["pending_prompt"] = None
                 st.rerun()
 
-            # 2) ‘Questions’ gate — if NOT matched, show a gentle nudge but still proceed
+            # 2) 'Questions' gate — gentle nudge but continue
             qvec, qmat, qcorpus = get_questions_model()
-            matched_q, _, qscore, _ = match_similarity(user_input, qvec, qmat, qcorpus, threshold=0.40)
+            matched_q, _, _, _ = match_similarity(pending, qvec, qmat, qcorpus, threshold=0.40)
             if not matched_q:
                 st.session_state.metrics["faq_prompted"] += 1
                 st.session_state.chat_history.append(
-                    {
-                        "role": "bot",
-                        "content": "Tip: I answer best on portfolio topics (skills, projects, experience).",
-                    }
+                    {"role": "bot", "content": "Tip: I answer best on portfolio topics (skills, projects, experience)."}
                 )
 
             # 3) Curated answers from `var` (high precision)
             vvec, vmat, vcorpus, vmapping = get_var_model()
+            matched_v, vkey, _, _ = (False, None, 0.0, -1)
             if vcorpus:
-                matched_v, vkey, vscore, vidx = match_similarity(user_input, vvec, vmat, vcorpus, threshold=0.90)
-            else:
-                matched_v, vkey, vscore, vidx = (False, None, 0.0, -1)
+                matched_v, vkey, _, _ = match_similarity(pending, vvec, vmat, vcorpus, threshold=0.90)
 
             if matched_v and vmapping and isinstance(vmapping, dict):
                 st.session_state.metrics["faq_answered"] += 1
                 reply = vmapping.get(vkey, "")
                 st.session_state.chat_history.append({"role": "bot", "content": reply})
+                st.session_state["pending_prompt"] = None
                 st.rerun()
 
-            # 4) LLM fallback with RAG-lite context
-            focused_context = retrieve_bio_context(user_input, bio_text, k=3)
-            typing_placeholder = st.empty()
-            typing_placeholder.markdown("🤖 AnkBot is typing…")
-            reply = ask_bot(user_input, focused_context)
-            typing_placeholder.empty()
-
+            # 4) LLM fallback with RAG-lite context — STREAMED live typing
+            focused_context = retrieve_bio_context(pending, bio_text, k=3)
             st.session_state.metrics["llm"] += 1
-            st.session_state.chat_history.append({"role": "bot", "content": reply})
+
+            partial = ""
+            for chunk in ask_bot_stream(pending, focused_context):
+                partial += chunk or ""
+
+                # Re-render the chat with a live/partial bot bubble at the end
+                live_html = f"""
+                <div class="chatbot-container">
+                  <div class="chatbot-header">
+                    <h4 style="margin:0; font-weight: 500;">Ask AnkBot anything about me!</h4>
+                  </div>
+                  <div class="chatbot-messages" id="chat-messages">
+                    {render_chat_html(partial_bot=partial)}
+                    <div id="scroll-target" class="scroll-to"></div>
+                  </div>
+                </div>
+                """
+                chat_container_ph.markdown(live_html, unsafe_allow_html=True)
+
+                # Keep the chat scrolled to the bottom while streaming
+                components.html(
+                    """
+                    <script>
+                    (function(){
+                      const d = window.parent.document;
+                      const chat = d.getElementById('chat-messages');
+                      if (chat) { chat.scrollTop = chat.scrollHeight; }
+                    })();
+                    </script>
+                    """,
+                    height=0,
+                )
+
+                # Optional: small delay for a smoother "typing" feel
+                time.sleep(0.01)
+
+            
+            # Finalize the streamed message into history
+            st.session_state.chat_history.append(
+                {"role": "bot", "content": partial or "I received an empty response. Please try again."}
+            )
+            st.session_state["pending_prompt"] = None
             st.rerun()
+
 
         # # Tiny analytics footer
         # with st.expander("Chat diagnostics (local)"):
@@ -1061,19 +1428,58 @@ def render_research_experience():
 
     with col3:
         st.markdown("<h1 style='margin-bottom: 20px;'>Work Experience</h1>", unsafe_allow_html=True)
+        # Replace the CSS in your render_research_experience() function with this:
+        # Replace the CSS in your render_research_experience() function with this:
         st.markdown(
-            """
-            <style>
-                .experience-block { display:flex; background-color:black; border-radius:10px; margin-bottom:20px; box-shadow:0px 4px 6px rgba(0,0,0,0.1); overflow:hidden; }
-                .experience-left  { background-color:#F7C873; padding:20px; flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; font-weight:bold; color:black; }
-                .experience-right { padding:20px; flex:3; }
-                .experience-details { font-size:16px; line-height:1.5; }
-                ul { padding-left: 20px; } li { margin-bottom: 10px; }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-
+    """
+    <style>
+      .experience-block {
+        display: flex;
+        background: var(--panel-bg) !important;
+        border: 1px solid var(--panel-border) !important;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        overflow: hidden;
+      }
+      .experience-left {
+        background-color: #F7C873 !important;    /* keep bright orange accent */
+        padding: 20px;
+        flex: 1;
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        align-items: center; 
+        text-align: center;
+        font-weight: bold; 
+        color: #111 !important;  /* always dark text on bright orange */
+      }
+      .experience-right { 
+        padding: 20px; 
+        flex: 3; 
+        background: var(--panel-bg) !important; 
+        color: var(--text-color) !important; 
+      }
+      .experience-details { 
+        font-size: 16px; 
+        line-height: 1.6; 
+        color: var(--text-color) !important; 
+      }
+      .experience-details ul { 
+        padding-left: 20px; 
+        margin: 0; 
+      }
+      .experience-details li {
+        margin-bottom: 10px;
+        background: transparent !important;
+        color: var(--text-color) !important;
+      }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+        
+        
         experiences = [
             {
                 "title": "Senior Data Scientist",
