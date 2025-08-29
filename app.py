@@ -21,37 +21,50 @@ def inject_global_css():
     st.markdown(
         """
         <style>
-          /* ---------- LIGHT MODE (DEFAULT) ---------- */
+          /* ---------- DARK MODE (DEFAULT) ---------- */
           :root {
-            --primary-color: #ffffff;          /* white background */
-            --secondary-color: #f8f9fa;       /* light gray for inputs */
-            --text-color: #212529;            /* dark text */
-            --accent-color: #6c757d;          /* gray accent */
-            --panel-bg: #ffffff;              /* white panels */
-            --panel-muted: #f8f9fa;           /* light gray bubbles */
-            --panel-border: #dee2e6;          /* light borders */
+            --primary-color: #0f1115;        /* dark background */
+            --secondary-color: #1b1f24;      /* dark gray for inputs */
+            --text-color: #e5e7eb;           /* light text */
+            --accent-color: #9ca3af;         /* light gray accent */
+            --panel-bg: #111418;             /* dark panels */
+            --panel-muted: #1c2128;          /* darker bubbles */
+            --panel-border: #374151;         /* dark borders */
+            --input-bg: #1b1f24;             /* dark input background */
+            --input-text: #e5e7eb;           /* light input text */
+            --button-bg: #1b1f24;            /* dark button background */
+            --button-text: #e5e7eb;          /* light button text */
+            --button-hover: #1c2128;         /* dark button hover */
           }
           
-          /* ---------- DARK MODE ---------- */
-          @media (prefers-color-scheme: dark) {
+          /* ---------- LIGHT MODE ---------- */
+          [data-theme="light"], 
+          @media (prefers-color-scheme: light) {
             :root {
-              --primary-color: #0f1115;        /* dark background */
-              --secondary-color: #1b1f24;      /* dark gray for inputs */
-              --text-color: #e5e7eb;           /* light text */
-              --accent-color: #9ca3af;         /* light gray accent */
-              --panel-bg: #111418;             /* dark panels */
-              --panel-muted: #1c2128;          /* darker bubbles */
-              --panel-border: #374151;         /* dark borders */
+              --primary-color: #ffffff;          /* white background */
+              --secondary-color: #f8f9fa;       /* light gray for inputs */
+              --text-color: #212529;            /* dark text */
+              --accent-color: #6c757d;          /* gray accent */
+              --panel-bg: #ffffff;              /* white panels */
+              --panel-muted: #f8f9fa;           /* light gray bubbles */
+              --panel-border: #dee2e6;          /* light borders */
+              --input-bg: #ffffff;              /* white input background */
+              --input-text: #212529;            /* dark input text */
+              --button-bg: #f8f9fa;             /* light button background */
+              --button-text: #212529;           /* dark button text */
+              --button-hover: #e9ecef;          /* light button hover */
             }
           }
 
           /* ---------- BASE APP STYLING ---------- */
           .stApp {
             background-color: var(--primary-color) !important;
+            color: var(--text-color) !important;
           }
           
           .main .block-container {
             background-color: var(--primary-color) !important;
+            color: var(--text-color) !important;
           }
 
           /* ---------- CHAT CONTAINER ---------- */
@@ -130,23 +143,33 @@ def inject_global_css():
             padding: 1rem !important;
           }
           
-          /* Text inputs and textareas */
+          /* Text inputs and textareas - FIXED */
           .stTextInput > div > div > input,
           .stTextArea > div > div > textarea,
           input[type="text"],
           input[type="email"],
           textarea {
-            background: var(--secondary-color) !important;
-            color: var(--text-color) !important;
+            background: var(--input-bg) !important;
+            color: var(--input-text) !important;
             border: 1px solid var(--panel-border) !important;
             border-radius: 8px !important;
           }
           
-          /* Buttons */
+          /* Input placeholders */
+          .stTextInput > div > div > input::placeholder,
+          .stTextArea > div > div > textarea::placeholder,
+          input[type="text"]::placeholder,
+          input[type="email"]::placeholder,
+          textarea::placeholder {
+            color: var(--accent-color) !important;
+            opacity: 0.7 !important;
+          }
+          
+          /* Buttons - FIXED */
           .stButton > button,
           button[type="submit"] {
-            background: var(--secondary-color) !important;
-            color: var(--text-color) !important;
+            background: var(--button-bg) !important;
+            color: var(--button-text) !important;
             border: 1px solid var(--panel-border) !important;
             border-radius: 8px !important;
             transition: all 0.2s ease;
@@ -154,8 +177,16 @@ def inject_global_css():
           
           .stButton > button:hover,
           button[type="submit"]:hover {
-            background: var(--panel-muted) !important;
+            background: var(--button-hover) !important;
             border-color: var(--accent-color) !important;
+          }
+
+          /* Form submit button visibility fix */
+          .stForm > div > div > button,
+          .stForm button[kind="primaryFormSubmit"] {
+            background: var(--button-bg) !important;
+            color: var(--button-text) !important;
+            border: 1px solid var(--panel-border) !important;
           }
 
           /* ---------- CHAT FORM SPECIFIC ---------- */
@@ -180,13 +211,27 @@ def inject_global_css():
             color: var(--text-color) !important;
           }
 
-          /* ---------- NAVIGATION ---------- */
+          /* Streamlit labels */
+          .stTextInput > label,
+          .stTextArea > label,
+          .stForm label {
+            color: var(--text-color) !important;
+          }
+
+          /* ---------- NAVIGATION - FIXED ---------- */
           .nav-link {
             color: var(--text-color) !important;
-            background: transparent !important;
+            background: var(--panel-bg) !important;
+            border: 1px solid var(--panel-border) !important;
           }
           
           .nav-link.active {
+            background: var(--secondary-color) !important;
+            color: var(--text-color) !important;
+          }
+
+          /* Option menu styling */
+          .nav-link-selected {
             background: var(--secondary-color) !important;
             color: var(--text-color) !important;
           }
@@ -200,11 +245,19 @@ def inject_global_css():
             color: var(--text-color) !important;
           }
 
+          .stRadio > div > label > div {
+            color: var(--text-color) !important;
+          }
+
           /* ---------- SELECTBOXES ---------- */
           .stSelectbox > div > div {
-            background: var(--secondary-color) !important;
-            color: var(--text-color) !important;
+            background: var(--input-bg) !important;
+            color: var(--input-text) !important;
             border: 1px solid var(--panel-border) !important;
+          }
+
+          .stSelectbox label {
+            color: var(--text-color) !important;
           }
 
           /* ---------- PROFILE SIDEBAR ---------- */
@@ -256,63 +309,180 @@ def inject_global_css():
 
           /* ---------- LINK BUTTONS ---------- */
           .stLinkButton > a {
-            background: var(--secondary-color) !important;
-            color: var(--text-color) !important;
+            background: var(--button-bg) !important;
+            color: var(--button-text) !important;
             border: 1px solid var(--panel-border) !important;
             text-decoration: none !important;
           }
 
           .stLinkButton > a:hover {
-            background: var(--panel-muted) !important;
+            background: var(--button-hover) !important;
             border-color: var(--accent-color) !important;
           }
 
-          /* ---------- STATUS MESSAGES ---------- */
+          /* ---------- STATUS MESSAGES (DARK DEFAULT) ---------- */
           .stSuccess {
-            background: #d4edda !important;
-            color: #155724 !important;
-            border: 1px solid #c3e6cb !important;
+            background: #1a4a3a !important;
+            color: #d4edda !important;
+            border: 1px solid #2d5a3d !important;
           }
           
           .stError {
-            background: #f8d7da !important;
-            color: #721c24 !important;
-            border: 1px solid #f5c6cb !important;
+            background: #4a1a1a !important;
+            color: #f8d7da !important;
+            border: 1px solid #5a2d2d !important;
           }
           
           .stWarning {
-            background: #fff3cd !important;
-            color: #856404 !important;
-            border: 1px solid #ffeaa7 !important;
+            background: #4a4a1a !important;
+            color: #fff3cd !important;
+            border: 1px solid #5a5a2d !important;
           }
           
           .stInfo {
-            background: #d1ecf1 !important;
-            color: #0c5460 !important;
-            border: 1px solid #bee5eb !important;
+            background: #1a3a4a !important;
+            color: #d1ecf1 !important;
+            border: 1px solid #2d4a5a !important;
           }
 
-          /* ---------- DARK MODE OVERRIDES FOR STATUS ---------- */
-          @media (prefers-color-scheme: dark) {
+          /* ---------- LIGHT MODE STATUS MESSAGES ---------- */
+          [data-theme="light"] .stSuccess,
+          @media (prefers-color-scheme: light) {
             .stSuccess {
-              background: #1a4a3a !important;
-              color: #d4edda !important;
+              background: #d4edda !important;
+              color: #155724 !important;
+              border: 1px solid #c3e6cb !important;
             }
             
             .stError {
-              background: #4a1a1a !important;
-              color: #f8d7da !important;
+              background: #f8d7da !important;
+              color: #721c24 !important;
+              border: 1px solid #f5c6cb !important;
             }
             
             .stWarning {
-              background: #4a4a1a !important;
-              color: #fff3cd !important;
+              background: #fff3cd !important;
+              color: #856404 !important;
+              border: 1px solid #ffeaa7 !important;
             }
             
             .stInfo {
-              background: #1a3a4a !important;
-              color: #d1ecf1 !important;
+              background: #d1ecf1 !important;
+              color: #0c5460 !important;
+              border: 1px solid #bee5eb !important;
             }
+          }
+
+          /* ---------- STREAMLIT SPECIFIC FIXES ---------- */
+          /* Fix for Streamlit's built-in form styling */
+          div[data-testid="stForm"] {
+            background: var(--panel-bg) !important;
+            border: 1px solid var(--panel-border) !important;
+          }
+
+          /* Fix for Streamlit input containers */
+          div[data-testid="stTextInput"] > div {
+            background: var(--input-bg) !important;
+          }
+
+          div[data-testid="stTextArea"] > div {
+            background: var(--input-bg) !important;
+          }
+
+          /* Fix for Streamlit button container */
+          div[data-testid="stButton"] > button {
+            background: var(--button-bg) !important;
+            color: var(--button-text) !important;
+            border: 1px solid var(--panel-border) !important;
+          }
+
+          /* Fix for form submit button */
+          button[kind="primaryFormSubmit"] {
+            background: var(--button-bg) !important;
+            color: var(--button-text) !important;
+            border: 1px solid var(--panel-border) !important;
+          }
+
+          /* Ensure all text inherits proper color */
+          * {
+            color: inherit;
+          }
+
+          /* Fix for any remaining white backgrounds in light mode */
+          .element-container,
+          .stMarkdown,
+          .stText {
+            background: transparent !important;
+          }
+
+          /* Option menu specific fixes */
+          .nav-link {
+            transition: all 0.2s ease !important;
+          }
+
+          /* Ensure proper contrast for all interactive elements */
+          button, input, textarea, select {
+            background: var(--input-bg) !important;
+            color: var(--input-text) !important;
+            border: 1px solid var(--panel-border) !important;
+          }
+
+          /* Additional Streamlit component fixes */
+          
+          /* Fix for contact form inputs specifically */
+          .stForm input[type="text"],
+          .stForm input[type="email"],
+          .stForm textarea {
+            background: var(--input-bg) !important;
+            color: var(--input-text) !important;
+            border: 1px solid var(--panel-border) !important;
+          }
+
+          /* Fix for chat input */
+          .stTextInput input {
+            background: var(--input-bg) !important;
+            color: var(--input-text) !important;
+          }
+
+          /* Fix for option menu (navigation tabs) */
+          .nav-tabs .nav-link {
+            background: var(--panel-bg) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--panel-border) !important;
+          }
+
+          .nav-tabs .nav-link.active {
+            background: var(--secondary-color) !important;
+            color: var(--text-color) !important;
+          }
+
+          /* Fix for any remaining dark backgrounds in light mode */
+          .stApp > div {
+            background: var(--primary-color) !important;
+          }
+
+          /* Fix for radio button labels in project filter */
+          .stRadio > div > label > div[data-testid="stMarkdownContainer"] {
+            color: var(--text-color) !important;
+          }
+
+          /* Fix for all markdown content */
+          div[data-testid="stMarkdownContainer"] {
+            color: var(--text-color) !important;
+          }
+
+          /* Specific fix for form button visibility */
+          .stForm > div:last-child button {
+            background: var(--button-bg) !important;
+            color: var(--button-text) !important;
+            border: 1px solid var(--panel-border) !important;
+            font-weight: 500 !important;
+          }
+
+          /* Fix for submit button icon/text visibility */
+          .stForm button::before,
+          .stForm button::after {
+            color: var(--button-text) !important;
           }
         </style>
         """,
@@ -1452,7 +1622,7 @@ def render_research_experience():
         align-items: center; 
         text-align: center;
         font-weight: bold; 
-        color: #111 !important;  /* always dark text on bright orange */
+        color: #000000 !important;  /* always dark text on bright orange */
       }
       .experience-right { 
         padding: 20px; 
