@@ -14,24 +14,60 @@ def inject_global_css():
     st.markdown(
         """
         <style>
-          /* Chat bubbles */
-          .user-message, .bot-message {
-            padding: .55rem .8rem; border-radius: 10px; display: inline-block;
-            white-space: pre-wrap; word-wrap: break-word; max-width: 100%;
-            line-height: 1.45;
-          }
-          .user-row { text-align: right; }
-          .user-message { background: #eaf2ff; }
-          .bot-message  { background: #f6f6f6; }
+        /* Container that holds the scrollable messages */
+        .ank-messages {
+            height: 420px;                 /* fixed height prevents growth */
+            overflow-y: auto;
+            padding: .75rem;
+            background: var(--secondary-background-color);
+            color: var(--text-color);
+            border: 1px solid rgba(128,128,128,.25);
+            border-radius: 12px;
+        }
 
-          /* Side panel */
-          .side-card { padding:.75rem; border-radius: 10px; background:#fafafa; }
-          .side-card h3 { margin: .25rem 0 .5rem 0; }
-          .side-card .muted { color:#666; font-size: 0.9rem; }
-          .side-card a { text-decoration:none; }
+        /* Each row aligns left (bot) or right (user) */
+        .ank-row {
+            display: flex;
+            margin: .25rem 0;
+            width: 100%;
+        }
+        .ank-row.left { justify-content: flex-start; }
+        .ank-row.right { justify-content: flex-end; }
 
-          /* Buttons */
-          .stLinkButton a, .stButton button { border-radius: 8px; }
+        /* Bubble styling */
+        .ank-bubble {
+            display: inline-block;
+            padding: .5rem .75rem;
+            border-radius: 16px;
+            line-height: 1.35;
+            max-width: 72%;
+            word-wrap: break-word;
+            word-break: break-word;
+            border: 1px solid rgba(128,128,128,.25);
+        }
+        .ank-bot  { 
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+        .ank-user { 
+            background: rgba(26,115,232,.14);         /* blue tint */
+            border-color: rgba(26,115,232,.35);
+            color: var(--text-color);
+        }
+
+        /* Keep the input visually close to the chat window */
+        .ank-messages + div[data-baseweb="input"] { 
+            margin-top: .4rem !important; 
+        }
+
+        /* Theme-aware input */
+        div[data-baseweb="input"] > div {
+            background: var(--secondary-background-color);
+            border-color: rgba(128,128,128,.25);
+        }
+        div[data-baseweb="input"] input {
+            color: var(--text-color);
+        }
         </style>
         """,
         unsafe_allow_html=True,
