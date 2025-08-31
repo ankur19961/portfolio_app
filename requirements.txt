@@ -1,0 +1,7 @@
+streamlit
+openai
+requests
+streamlit-option-menu
+numpy
+scikit-learn
+google-generativeai
