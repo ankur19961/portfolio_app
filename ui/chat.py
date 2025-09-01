@@ -145,20 +145,21 @@ def render_about_me(base_dir: Path):
                 
                 input_col1, input_col2 = st.columns([9, 1])
                 
-                with input_col1:
-                    user_input = st.text_input(
-                        "Message", 
-                        label_visibility="collapsed",
-                        placeholder="Type your message here...",
-                        key=f"chat_input_{st.session_state.message_counter}"
-                    )
                 
-                with input_col2:
-                    send_clicked = st.button(
-                        "➤", 
-                        key=f"send_btn_{st.session_state.message_counter}",
-                        use_container_width=True
-                    )
+                with st.form(key=f"chat_form_{st.session_state.message_counter}", clear_on_submit=True):
+                    input_col1, input_col2 = st.columns([9, 1])
+                    with input_col1:
+                        user_input = st.text_input(
+                            "Message",
+                            label_visibility="collapsed",
+                            placeholder="Type your message here...",
+                            key=f"chat_input_{st.session_state.message_counter}"
+                        )
+                    with input_col2:
+                        submitted = st.form_submit_button("➤", use_container_width=True)
+
+
+
                 
                 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -178,7 +179,7 @@ def render_about_me(base_dir: Path):
             st.info("bio.txt not found. I'll still try to help, but responses may be limited.")
 
         # Handle input submission
-        if user_input and user_input.strip() and send_clicked:
+        if user_input and user_input.strip() and submitted:
             st.session_state.message_counter += 1
             _append_msg("user", user_input)
             st.session_state["pending_prompt"] = user_input
