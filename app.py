@@ -16,7 +16,7 @@ def inject_global_css():
         <style>
         /* Container that holds the scrollable messages */
         .ank-messages {
-            height: 420px;                 /* fixed height prevents growth */
+            height: 300px;                 /* fixed height prevents growth */
             overflow-y: auto;
             padding: .75rem;
             background: var(--secondary-background-color);
