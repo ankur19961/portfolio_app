@@ -65,12 +65,50 @@ def _append_msg(role: str, content: str, cap: int = 24):
         st.session_state.chat_history = st.session_state.chat_history[-cap:]
 
 
+def _show_thinking_message():
+    """
+    Display a thinking indicator with animated dots
+    """
+    return st.markdown(
+        """
+        <div style="
+            padding: 10px 15px;
+            margin: 10px 0;
+            background: var(--secondary-background-color);
+            border: 1px solid rgba(128,128,128,.25);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        ">
+            <span>🤖 AnkBot is thinking</span>
+            <div class="thinking-dots">
+                <style>
+                .thinking-dots {
+                    display: inline-flex;
+                    gap: 2px;
+                }
+                .thinking-dots::after {
+                    content: '';
+                    animation: dots 1.5s infinite;
+                }
+                @keyframes dots {
+                    0%, 20% { content: '.'; }
+                    40% { content: '..'; }
+                    60% { content: '...'; }
+                    80%, 100% { content: ''; }
+                }
+                </style>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
 # ------------- Main UI renderer ----------------------------------------------
-# Replace the form section in your ui/chat.py render_about_me function with this:
-
-# Replace your render_about_me function with this simpler approach:
-
-# Replace your render_about_me function with this simpler approach:
 
 def render_about_me(base_dir: Path):
     col1, _, col3 = st.columns([7, 1, 20])
@@ -124,6 +162,9 @@ def render_about_me(base_dir: Path):
                 
                 st.markdown('</div>', unsafe_allow_html=True)
 
+            # Thinking indicator placeholder (below input)
+            thinking_placeholder = st.empty()
+
         # Render chat messages
         chat_container_ph.markdown(
             _render_chat_html_with_scroll(container_id=container_id),
@@ -143,9 +184,13 @@ def render_about_me(base_dir: Path):
             st.session_state["pending_prompt"] = user_input
             st.rerun()
 
-        # Your existing pipeline logic remains the same...
+        # Process pending prompt with thinking indicator
         if "pending_prompt" in st.session_state and st.session_state["pending_prompt"]:
             pending = st.session_state["pending_prompt"]
+
+            # Show thinking indicator
+            with thinking_placeholder:
+                thinking_indicator = _show_thinking_message()
 
             # Gate: if too long, set expectation
             if len(pending.split()) > 80:
@@ -163,6 +208,7 @@ def render_about_me(base_dir: Path):
                 reply = bdict.get(match_key, "I understand.")
                 _append_msg("bot", reply)
                 st.session_state["pending_prompt"] = None
+                thinking_placeholder.empty()  # Clear thinking indicator
                 st.rerun()
 
             # 2) Question gate
@@ -183,6 +229,7 @@ def render_about_me(base_dir: Path):
                 reply = vmapping.get(vkey, "")
                 _append_msg("bot", reply or "Thanks! (curated)")
                 st.session_state["pending_prompt"] = None
+                thinking_placeholder.empty()  # Clear thinking indicator
                 st.rerun()
 
             # 4) LLM fallback with RAG-lite (STREAMING)
@@ -190,7 +237,14 @@ def render_about_me(base_dir: Path):
             st.session_state.metrics["llm"] += 1
 
             partial = ""
+            first_chunk = True
+            
             for chunk in ask_bot_stream(pending, focused_context):
+                if first_chunk:
+                    # Clear thinking indicator when first chunk arrives
+                    thinking_placeholder.empty()
+                    first_chunk = False
+                
                 partial += (chunk or "")
                 # Re-render the chat window with the streaming bubble appended
                 chat_container_ph.markdown(
@@ -203,4 +257,5 @@ def render_about_me(base_dir: Path):
             # Finalize the bot message
             _append_msg("bot", partial or "I received an empty response. Please try again.")
             st.session_state["pending_prompt"] = None
+            thinking_placeholder.empty()  # Ensure thinking indicator is cleared
             st.rerun()
