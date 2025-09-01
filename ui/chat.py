@@ -66,6 +66,12 @@ def _append_msg(role: str, content: str, cap: int = 24):
 
 
 # ------------- Main UI renderer ----------------------------------------------
+# Replace the form section in your ui/chat.py render_about_me function with this:
+
+# Replace your render_about_me function with this simpler approach:
+
+# Replace your render_about_me function with this simpler approach:
+
 def render_about_me(base_dir: Path):
     col1, _, col3 = st.columns([7, 1, 20])
 
@@ -82,40 +88,62 @@ def render_about_me(base_dir: Path):
         )
 
         st.header("Meet AnkBot! 🤖")
+        st.markdown("Ask AnkBot anything about me!")
 
-        # Unique DOM id so scroll JS targets the current container on each roundtrip
-        container_id = f"chat-container-{st.session_state.message_counter}"
-
-        # ---- One form that contains the chat window (as a placeholder) + input
-        with st.form(key=f"chat_form_{st.session_state.message_counter}", clear_on_submit=True):
-            # Hint / title above chat window (optional)
-            st.markdown("Ask AnkBot anything about me!", help=None)
-
-            # Chat window placeholder: we always render the messages first
+        # Create a container for the entire chat interface
+        chat_wrapper = st.container()
+        
+        with chat_wrapper:
+            # Chat messages window
+            container_id = f"chat-container-{st.session_state.message_counter}"
             chat_container_ph = st.empty()
-            chat_container_ph.markdown(
-                _render_chat_html_with_scroll(container_id=container_id),
-                unsafe_allow_html=True
-            )
-            _auto_scroll_to_bottom(container_id)
+            
+            # Input area directly below (no spacing)
+            input_container = st.container()
+            
+            with input_container:
+                # Use CSS to make this look like it's part of the chat window
+                st.markdown('<div class="ank-input-section">', unsafe_allow_html=True)
+                
+                input_col1, input_col2 = st.columns([9, 1])
+                
+                with input_col1:
+                    user_input = st.text_input(
+                        "Message", 
+                        label_visibility="collapsed",
+                        placeholder="Type your message here...",
+                        key=f"chat_input_{st.session_state.message_counter}"
+                    )
+                
+                with input_col2:
+                    send_clicked = st.button(
+                        "➤", 
+                        key=f"send_btn_{st.session_state.message_counter}",
+                        use_container_width=True
+                    )
+                
+                st.markdown('</div>', unsafe_allow_html=True)
 
-            # Input + submit
-            user_input = st.text_input("Message", label_visibility="collapsed")
-            submitted = st.form_submit_button("➤")
+        # Render chat messages
+        chat_container_ph.markdown(
+            _render_chat_html_with_scroll(container_id=container_id),
+            unsafe_allow_html=True
+        )
+        _auto_scroll_to_bottom(container_id)
 
-        # Load bio/context once per render (your RAG-lite source)
+        # Load bio/context
         bio_text = load_bio_text(base_dir)
         if not bio_text:
             st.info("bio.txt not found. I'll still try to help, but responses may be limited.")
 
-        # On submit: record user message and trigger a rerun so we can stream
-        if submitted and user_input.strip():
+        # Handle input submission
+        if user_input and user_input.strip() and send_clicked:
             st.session_state.message_counter += 1
             _append_msg("user", user_input)
             st.session_state["pending_prompt"] = user_input
             st.rerun()
 
-        # If there's a pending prompt, run the pipeline and stream into the SAME chat window
+        # Your existing pipeline logic remains the same...
         if "pending_prompt" in st.session_state and st.session_state["pending_prompt"]:
             pending = st.session_state["pending_prompt"]
 
@@ -157,7 +185,7 @@ def render_about_me(base_dir: Path):
                 st.session_state["pending_prompt"] = None
                 st.rerun()
 
-            # 4) LLM fallback with RAG-lite (STREAMING into the chat window)
+            # 4) LLM fallback with RAG-lite (STREAMING)
             focused_context = retrieve_bio_context(pending, bio_text, k=3)
             st.session_state.metrics["llm"] += 1
 
